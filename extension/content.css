@@ -236,12 +236,15 @@
 .feature-creep-popup-window {
   --feature-creep-handwriting: "Chalkboard SE", "Comic Sans MS", ui-rounded, system-ui, sans-serif;
   position: absolute;
-  left: var(--popup-x);
-  top: var(--popup-y);
+  left: 50%;
+  top: 50%;
   z-index: var(--feature-creep-offset);
   width: var(--popup-width, min(49vw, 42rem, 102dvh));
   aspect-ratio: 646 / 435;
-  transform: translate(-50%, -50%) rotate(var(--popup-tilt));
+  transform: translate(-50%, -50%)
+    translate(calc(var(--popup-shift-x) * var(--popup-spread, 1)),
+      calc(var(--popup-shift-y) * var(--popup-spread, 1)))
+    rotate(var(--popup-tilt)) scale(var(--popup-scale, 1));
   /* Crop the transparent margins of Carolyn's original 700 × 500 window. */
   background: var(--feature-creep-popup-frame) 42.6% 67.7% /
     calc(700 / 646 * 100%) calc(500 / 435 * 100%) no-repeat;
@@ -259,9 +262,17 @@
   background-size: calc(700 / 358 * 100%) calc(500 / 494 * 100%);
 }
 
+.feature-creep-popup-window[inert] {
+  --popup-scale: 0.9;
+}
+
+.feature-creep-popup-window[inert] > * {
+  visibility: hidden;
+}
+
 .feature-creep-popup-window[data-scene="sprint"] {
-  --popup-x: 37%;
-  --popup-y: 60%;
+  --popup-shift-x: -13px;
+  --popup-shift-y: 15px;
   --popup-tilt: -4deg;
   --scene-left: 51;
   --scene-top: 103;
@@ -271,8 +282,8 @@
 }
 
 .feature-creep-popup-window[data-scene="conference"] {
-  --popup-x: 75%;
-  --popup-y: 43%;
+  --popup-shift-x: 19px;
+  --popup-shift-y: -17px;
   --popup-tilt: 7deg;
   --scene-left: 704;
   --scene-top: 118;
@@ -282,8 +293,8 @@
 }
 
 .feature-creep-popup-window[data-scene="stamp"] {
-  --popup-x: 39%;
-  --popup-y: 29%;
+  --popup-shift-x: 8px;
+  --popup-shift-y: -23px;
   --popup-tilt: 4deg;
   --popup-width: min(47vw, 40rem, 76dvh);
   --scene-left: 1498;
@@ -452,10 +463,6 @@
   animation: feature-creep-popup-point 460ms steps(2, end) infinite alternate;
 }
 
-.feature-creep-popup-window[inert] .feature-creep-popup-cue {
-  visibility: hidden;
-}
-
 .feature-creep-popup-window[inert] .feature-creep-popup-cue::after {
   animation: none;
 }
@@ -466,14 +473,12 @@
 }
 
 @media (max-width: 760px), (max-height: 550px) {
+  .feature-creep-popup-stack {
+    --popup-spread: 0.45;
+  }
+
   .feature-creep-popup-window {
-    left: 50%;
-    top: 50%;
     width: min(calc(100% - 2.5rem), 33rem, 110dvh);
-    transform: translate(-50%, -50%)
-      translate(calc((var(--feature-creep-offset) - 1) * 5px),
-        calc((var(--feature-creep-offset) - 1) * 23px))
-      rotate(var(--popup-tilt));
   }
 
   .feature-creep-popup-window[data-layout="portrait"] {
