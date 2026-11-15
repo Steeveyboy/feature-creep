@@ -13,6 +13,8 @@
       message: "This request takes one click. Approve an approval process to bring it up to spec.",
       action: "Approve the approval process",
       scene: "sprint",
+      layout: "landscape",
+      cue: "Click here!",
       illustration: "The aardvark sprints with an armful of paperwork.",
     },
     {
@@ -20,6 +22,8 @@
       message: "Your only stakeholder is you. Please confirm that you agree with yourself.",
       action: "Click here if you agree with yourself",
       scene: "conference",
+      layout: "portrait",
+      cue: "Click me!",
       illustration: "The aardvark presents a chart to another aardvark that looks just like him.",
     },
     {
@@ -27,6 +31,8 @@
       message: "Your feature suggestion has been approved for drafting. Approve the decision to open the draft.",
       action: "Open issue draft",
       scene: "stamp",
+      layout: "landscape",
+      cue: "Over here!",
       illustration: "The aardvark slams an oversized rubber stamp onto the paperwork.",
     },
   ];
@@ -90,6 +96,14 @@
 
     const card = document.createElement("div");
     card.className = "feature-creep-card";
+    const frameUrl = chrome.runtime.getURL("extension/popup-art/frame-landscape.png");
+    card.style.setProperty("--feature-creep-loading-frame", `url("${frameUrl}")`);
+
+    const title = document.createElement("div");
+    title.className = "feature-creep-loading-title";
+    title.setAttribute("aria-hidden", "true");
+    title.textContent = "Loading…";
+
     const desk = document.createElement("span");
     desk.className = "feature-creep-desk";
     desk.setAttribute("aria-hidden", "true");
@@ -100,7 +114,7 @@
     desk.append(sprite);
     const text = document.createElement("div");
     text.className = "feature-creep-message";
-    card.append(desk, text);
+    card.append(title, desk, text);
     overlay.append(card);
     document.body.append(overlay);
 
@@ -115,14 +129,17 @@
       const dialog = document.createElement("dialog");
       dialog.className = "feature-creep-popup-stack";
       dialog.setAttribute("aria-label", "Feature Creep approvals");
-      const frameUrl = chrome.runtime.getURL("extension/popup-art/frame.png");
-      dialog.style.setProperty("--feature-creep-popup-frame", `url("${frameUrl}")`);
+      const arrowUrl = chrome.runtime.getURL("extension/mascot-arrow.png");
+      dialog.style.setProperty("--feature-creep-arrow-image", `url("${arrowUrl}")`);
 
       for (const [index, approval] of APPROVALS.entries()) {
         const pane = document.createElement("section");
         pane.className = "feature-creep-popup-window";
         pane.dataset.scene = approval.scene;
+        pane.dataset.layout = approval.layout;
         pane.style.setProperty("--feature-creep-offset", APPROVALS.length - 1 - index);
+        const frameUrl = chrome.runtime.getURL(`extension/popup-art/frame-${approval.layout}.png`);
+        pane.style.setProperty("--feature-creep-popup-frame", `url("${frameUrl}")`);
         pane.inert = index !== 0;
 
         const titleBar = document.createElement("header");
@@ -158,14 +175,28 @@
 
         const body = document.createElement("div");
         body.className = "feature-creep-popup-body";
-        const artwork = document.createElement("img");
+        const artwork = document.createElement("span");
         artwork.className = "feature-creep-popup-art";
-        artwork.alt = approval.illustration;
-        artwork.draggable = false;
-        artwork.src = chrome.runtime.getURL(`extension/popup-art/${approval.scene}.png`);
+        const scene = document.createElement("img");
+        scene.alt = approval.illustration;
+        scene.draggable = false;
+        scene.src = chrome.runtime.getURL("extension/popup-art/scenes.png");
+        const movement = document.createElement("img");
+        movement.alt = "";
+        movement.draggable = false;
+        movement.src = chrome.runtime.getURL("extension/popup-art/scenes-move.png");
+        artwork.append(scene, movement);
+
+        const cue = document.createElement("span");
+        cue.className = "feature-creep-popup-cue";
+        cue.textContent = approval.cue;
+        cue.setAttribute("aria-hidden", "true");
+        const actions = document.createElement("footer");
+        actions.className = "feature-creep-popup-actions";
+        actions.append(cue, advance);
         body.append(message, artwork);
-        pane.append(titleBar, body, advance);
-        // The first approval sits on top, with later ones peeking out behind it.
+        pane.append(titleBar, body, actions);
+        // Keep the current approval above the other scattered windows.
         dialog.prepend(pane);
       }
 
@@ -267,7 +298,7 @@
     const imageUrl = chrome.runtime.getURL("extension/mascot-arrow.png");
     arrows.style.setProperty("--feature-creep-arrow-image", `url("${imageUrl}")`);
 
-    for (let index = 0; index < 5; index++) {
+    for (let index = 0; index < 4; index++) {
       const arrow = document.createElement("span");
       arrow.className = "feature-creep-arrow";
       arrows.append(arrow);
