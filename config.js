@@ -41,6 +41,9 @@ export default {
     "Moving the needle...",
   ],
   spinnerIntervalMs: 1100,
+  // Keep the spinner up at least this long, so the jokes are visible even
+  // when the answer comes instantly from demo-cache.json. 0 = no waiting.
+  minSpinnerMs: 2500,
 
   // ── Demo safety net ───────────────────────────────────────────────────────
   // true: if the repo is in demo-cache.json, use that instantly (no AI call).

@@ -22,6 +22,7 @@ async function loadCache() {
 }
 
 async function handleSuggest({ owner, repo }, sender) {
+  const startedAt = Date.now();
   const [template, cache, keys] = await Promise.all([
     loadText("prompt.md"),
     loadCache(),
@@ -39,6 +40,10 @@ async function handleSuggest({ owner, repo }, sender) {
   });
   if (result.error) console.warn("[feature-creep] used fallback because:", result.error);
 
+  // Opening the tab steals focus, so wait here until the spinner has been seen.
+  const remaining = (config.minSpinnerMs || 0) - (Date.now() - startedAt);
+  if (remaining > 0) await new Promise((resolve) => setTimeout(resolve, remaining));
+
   // Open right next to the repo tab.
   await chrome.tabs.create({ url: result.issueUrl, index: (sender.tab?.index ?? 0) + 1 });
   return { ok: true, source: result.source, error: result.error };
@@ -50,6 +55,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       buttonLabel: config.buttonLabel,
       spinnerMessages: config.spinnerMessages,
       spinnerIntervalMs: config.spinnerIntervalMs,
+      minSpinnerMs: config.minSpinnerMs,
     });
     return false;
   }
