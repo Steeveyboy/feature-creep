@@ -218,3 +218,14 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# feature-creep: local keys and env files (keys belong in the extension's
+# options page or your shell environment, never in the repo)
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+secrets.*
+keys.*
+node_modules/

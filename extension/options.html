@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>feature-creep settings</title>
+    <style>
+      body { max-width: 520px; margin: 40px auto; padding: 0 16px; font: 15px/1.5 system-ui, sans-serif; color: #1f2328; }
+      label { display: block; margin-top: 20px; font-weight: 600; }
+      small { display: block; font-weight: 400; color: #59636e; }
+      input { width: 100%; box-sizing: border-box; margin-top: 6px; padding: 8px; font: 13px ui-monospace, monospace; }
+      button { margin-top: 24px; padding: 8px 18px; font: inherit; cursor: pointer; }
+      #status { margin-left: 12px; color: #1a7f37; }
+    </style>
+  </head>
+  <body>
+    <h1>✨ feature-creep</h1>
+    <p>Keys are stored only in this browser profile (chrome.storage.local).</p>
+    <form id="form">
+      <label>
+        Anthropic API key
+        <small>Required for live suggestions. Starts with <code>sk-ant-</code>.</small>
+        <input id="anthropicApiKey" type="password" autocomplete="off" spellcheck="false" />
+      </label>
+      <label>
+        GitHub token (optional)
+        <small>Raises GitHub's limit from 60 requests an hour. No scopes needed for public repos.</small>
+        <input id="githubToken" type="password" autocomplete="off" spellcheck="false" />
+      </label>
+      <button type="submit">Save</button><span id="status" role="status"></span>
+    </form>
+    <script src="options.js"></script>
+  </body>
+</html>
