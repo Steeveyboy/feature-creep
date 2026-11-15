@@ -42,10 +42,12 @@ export default {
     "Leveraging learnings from a meeting that could have been an email...",
     "Pre-approving the retrospective for this loading screen...",
   ],
-  spinnerIntervalMs: 1800,
+  spinnerIntervalMs: 1050,
   // Keep the spinner up at least this long, so the jokes are visible even
   // when the answer comes instantly from demo-cache.json. 0 = no waiting.
-  minSpinnerMs: 15000,
+  minSpinnerMs: 4100,
+  // A slow live request uses the existing fallback at the demo deadline.
+  maxSuggestionMs: 5000,
 
   // ── Demo safety net ───────────────────────────────────────────────────────
   // true: if the repo is in demo-cache.json, use that instantly (no AI call).
