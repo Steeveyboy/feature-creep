@@ -22,8 +22,9 @@
   opacity: 0.85;
 }
 
-#feature-creep-button:has(.frame-1-ready) {
-  width: clamp(10rem, 24vw, 17.5rem);
+#feature-creep-button:has(.feature-creep-sign.frame-1-ready) {
+  position: relative;
+  width: clamp(13rem, 36vw, 28rem);
   max-width: calc(100vw - 40px);
   padding: 0;
   border-radius: 8px;
@@ -36,13 +37,95 @@
   outline-offset: 4px;
 }
 
-#feature-creep-button:has(.frame-1-ready) .feature-creep-button-label {
+#feature-creep-button:has(.feature-creep-sign.frame-1-ready) .feature-creep-button-label {
   position: absolute;
   width: 1px;
   height: 1px;
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+.feature-creep-arrows {
+  position: absolute;
+  inset: 0;
+  display: none;
+  pointer-events: none;
+}
+
+.feature-creep-floating:has(#feature-creep-button:enabled .feature-creep-sign.frame-1-ready) .feature-creep-arrows {
+  display: block;
+}
+
+.feature-creep-arrow {
+  position: absolute;
+  width: var(--arrow-width);
+  aspect-ratio: 1156 / 600;
+  background: var(--feature-creep-arrow-image) center 52% / calc(1774 / 1156 * 100%) auto no-repeat;
+  transform: rotate(var(--arrow-aim));
+  animation: feature-creep-arrow-jab var(--arrow-beat) steps(2, end) var(--arrow-delay, 0ms) 7 alternate;
+}
+
+.feature-creep-arrow:nth-child(1) {
+  left: -3rem;
+  top: 49%;
+  --arrow-width: 2.9rem;
+  --arrow-aim: -5deg;
+  --arrow-beat: 470ms;
+}
+
+.feature-creep-arrow:nth-child(2) {
+  left: -1.4rem;
+  top: 23%;
+  --arrow-width: 2.75rem;
+  --arrow-aim: 43deg;
+  --arrow-beat: 560ms;
+  --arrow-delay: -280ms;
+}
+
+.feature-creep-arrow:nth-child(3) {
+  left: 21%;
+  top: 13%;
+  --arrow-width: 2.95rem;
+  --arrow-aim: 82deg;
+  --arrow-beat: 410ms;
+  --arrow-delay: -360ms;
+}
+
+.feature-creep-arrow:nth-child(4) {
+  left: 48%;
+  top: 15%;
+  --arrow-width: 2.65rem;
+  --arrow-aim: 106deg;
+  --arrow-beat: 630ms;
+  --arrow-delay: -500ms;
+}
+
+.feature-creep-arrow:nth-child(5) {
+  right: 0;
+  top: -2.15rem;
+  --arrow-width: 2.85rem;
+  --arrow-aim: 112deg;
+  --arrow-beat: 570ms;
+  --arrow-delay: -120ms;
+}
+
+.feature-creep-floating:has(#feature-creep-button:is(:hover, :focus-visible)) .feature-creep-arrow {
+  animation-iteration-count: infinite;
+}
+
+@keyframes feature-creep-arrow-jab {
+  from { transform: rotate(var(--arrow-aim)) translateX(-5px); }
+  to { transform: rotate(var(--arrow-aim)) translateX(9px); }
+}
+
+@media (max-width: 500px) {
+  .feature-creep-arrow {
+    width: calc(var(--arrow-width) * 0.75);
+  }
+
+  .feature-creep-arrow:nth-child(1) { left: -2.3rem; }
+  .feature-creep-arrow:nth-child(4) { display: none; }
 }
 
 /* Frame the visible ink within Carolyn's original 700 x 500 PNGs. */
@@ -82,6 +165,50 @@
 
 .feature-creep-sign.frame-1-ready {
   animation: feature-creep-nudge 1.9s steps(1, end) 1;
+}
+
+/* Keep the hand-lettered sign when the animated character takes over its right side. */
+#feature-creep-button:has(.feature-creep-launcher-mascot.frame-1-ready) .feature-creep-sign {
+  clip-path: polygon(
+    0 0, 72% 0, 72% 28%, 69% 35%, 65.5% 44%, 64% 52%,
+    65% 59%, 55% 59%, 55% 100%, 0 100%
+  );
+  animation: none;
+}
+
+.feature-creep-launcher-mascot {
+  --feature-creep-art-width: calc(2172 / 440 * 100%);
+  --feature-creep-art-left: calc(-168 / 440 * 100%);
+  --feature-creep-art-top: calc(-28 / 684 * 100%);
+  position: absolute;
+  right: 0.8%;
+  bottom: 0.8%;
+  display: none;
+  width: 43%;
+  aspect-ratio: 440 / 684;
+}
+
+#feature-creep-button:has(.feature-creep-sign.frame-1-ready) .feature-creep-launcher-mascot.frame-1-ready {
+  display: block;
+}
+
+.feature-creep-launcher-mascot img {
+  animation: feature-creep-launcher-poses 2.65s steps(1, end) infinite;
+}
+
+#feature-creep-button:enabled:is(:hover, :focus-visible) .feature-creep-launcher-mascot img {
+  animation: none;
+  transform: translateX(calc(-200% / 3));
+}
+
+#feature-creep-button:disabled .feature-creep-launcher-mascot img {
+  animation-play-state: paused;
+}
+
+@keyframes feature-creep-launcher-poses {
+  0%, 20%, 40%, 62%, 100% { transform: none; }
+  10%, 30%, 51% { transform: translateX(calc(-100% / 3)); }
+  72% { transform: translateX(calc(-200% / 3)); }
 }
 
 #feature-creep-button:not(:disabled):is(:hover, :active) .frame-2-ready img:first-child {
@@ -309,6 +436,8 @@
   .feature-creep-popup-window,
   .feature-creep-popup-window:not([inert]) .feature-creep-character,
   .feature-creep-sign.frame-1-ready,
+  .feature-creep-launcher-mascot img,
+  .feature-creep-arrow,
   .feature-creep-desk img {
     animation: none;
   }

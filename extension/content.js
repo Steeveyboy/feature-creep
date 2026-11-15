@@ -58,12 +58,11 @@
     setTimeout(() => el.remove(), 6000);
   }
 
-  function makeArtwork(className, showPressFrame = false) {
+  function makeArtwork(className, frames = ART_FRAMES.slice(0, 1)) {
     const art = document.createElement("span");
     art.className = `feature-creep-art ${className}`;
     art.setAttribute("aria-hidden", "true");
 
-    const frames = showPressFrame ? ART_FRAMES : ART_FRAMES.slice(0, 1);
     for (const [index, path] of frames.entries()) {
       const image = document.createElement("img");
       image.alt = "";
@@ -238,9 +237,28 @@
     const label = document.createElement("span");
     label.className = "feature-creep-button-label";
     label.textContent = ui.buttonLabel;
-    button.append(makeArtwork("feature-creep-sign", true), label);
+    button.append(
+      makeArtwork("feature-creep-sign", ART_FRAMES),
+      makeArtwork("feature-creep-launcher-mascot", ["extension/aardvark-launcher.png"]),
+      label,
+    );
     button.addEventListener("click", () => onClick(button));
     return button;
+  }
+
+  function makeArrows() {
+    const arrows = document.createElement("span");
+    arrows.className = "feature-creep-arrows";
+    arrows.setAttribute("aria-hidden", "true");
+    const imageUrl = chrome.runtime.getURL("extension/mascot-arrow.png");
+    arrows.style.setProperty("--feature-creep-arrow-image", `url("${imageUrl}")`);
+
+    for (let index = 0; index < 5; index++) {
+      const arrow = document.createElement("span");
+      arrow.className = "feature-creep-arrow";
+      arrows.append(arrow);
+    }
+    return arrows;
   }
 
   /** Idempotent: makes the page match what should be there. Safe to call often. */
@@ -256,7 +274,7 @@
 
     const wrap = document.createElement("div");
     wrap.className = "feature-creep-wrap feature-creep-floating";
-    wrap.append(makeButton());
+    wrap.append(makeButton(), makeArrows());
     document.body.append(wrap);
   }
 

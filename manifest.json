@@ -26,7 +26,9 @@
       "resources": [
         "extension/aardvark_button1.png",
         "extension/aardvark_button2.png",
-        "extension/aardvark-desk.png"
+        "extension/aardvark-desk.png",
+        "extension/aardvark-launcher.png",
+        "extension/mascot-arrow.png"
       ],
       "matches": ["https://github.com/*"]
     }
