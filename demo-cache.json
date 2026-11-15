@@ -1,0 +1,41 @@
+{
+  "Steeveyboy/feature-creep": {
+    "title": "Require a signed-off PRD before `suggestFeature()` may suggest a feature",
+    "user_story": "As a director of product operations, I want `src/core.js` to block `suggestFeature()` until a product requirements document has been approved in the options page, so that our feature suggestions are themselves properly suggested.",
+    "why_now": "The README says reliability matters more than features, yet `extension/content.js` currently lets any individual contributor click the button with zero governance. Every unreviewed click is roadmap risk.",
+    "story_points": 13,
+    "kpi_impacted": "Suggestion Approval Cycle Time (SACT)",
+    "acceptance_criteria": [
+      "`extension/options.html` gains a 14-field PRD form with a mandatory 'Strategic Alignment' section",
+      "`suggestFeature()` in `src/core.js` rejects with `PRD_NOT_APPROVED` until two stakeholders have signed off",
+      "`config.js` gains a `spinnerMessages` entry reading 'Awaiting sign-off...' that is shown for a minimum of three business days",
+      "`scripts/try.mjs` supports a `--skip-governance` flag that is documented as deprecated on release"
+    ]
+  },
+  "torvalds/linux": {
+    "title": "Add NPS survey prompt to `panic()` before the system halts",
+    "user_story": "As a kernel product owner, I want `panic()` in `kernel/panic.c` to ask the user 'How likely are you to recommend Linux to a friend or colleague?' before halting, so that we capture sentiment at the moment of peak engagement.",
+    "why_now": "The `MAINTAINERS` file lists thousands of people but not a single owner for customer satisfaction. A kernel panic is our highest-attention touchpoint and today we let it end without a call to action.",
+    "story_points": 21,
+    "kpi_impacted": "Panic-to-Promoter Conversion Rate",
+    "acceptance_criteria": [
+      "`kernel/panic.c` renders a 0 to 10 scale on the console and waits up to 30 seconds for a keypress",
+      "Responses are persisted through `fs/pstore` so the score survives the reboot",
+      "A new `Documentation/admin-guide/nps.rst` explains how detractors are followed up",
+      "`scripts/checkpatch.pl` warns on any new `panic()` call site that lacks a survey question"
+    ]
+  },
+  "facebook/react": {
+    "title": "Add a loading spinner while `useState` decides on the initial state",
+    "user_story": "As a frontend engineer, I want `useState` in `packages/react/src/ReactHooks.js` to display a branded loading spinner while it resolves its initial value, so that users feel reassured something is happening during those microseconds.",
+    "why_now": "The README promises that React makes it 'painless to create interactive UIs', but state initialization currently offers no visual feedback at all. Competitors are shipping skeleton screens for far less.",
+    "story_points": 8,
+    "kpi_impacted": "Perceived State Readiness Score",
+    "acceptance_criteria": [
+      "`useState` accepts an optional third return value, `isDeciding`, that is always `false`",
+      "A spinner is committed by `packages/react-reconciler/src/ReactFiberWorkLoop.js` and removed in the same tick",
+      "The spinner is configurable through a new `<StateLoadingProvider>` wrapped around the whole app",
+      "`packages/react/README.md` documents the feature under a new 'Delight' heading"
+    ]
+  }
+}
