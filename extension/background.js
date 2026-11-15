@@ -3,6 +3,7 @@
 
 import config from "../config.js";
 import { suggestFeature } from "../src/core.js";
+import { fetchBuzzwords } from "../src/buzzwords.js";
 
 // prompt.md and demo-cache.json are re-read on every click, so edits only
 // need an extension reload (config.js is an import, so it needs one too).
@@ -21,13 +22,30 @@ async function loadCache() {
   }
 }
 
+/** Today's buzzwords: fetched once per day, then served from storage. */
+async function getBuzzwords() {
+  if (!config.buzzwordsEnabled) return [];
+  const today = new Date().toISOString().slice(0, 10);
+  try {
+    const { buzzwordCache } = await chrome.storage.local.get("buzzwordCache");
+    if (buzzwordCache?.date === today && buzzwordCache.words?.length) return buzzwordCache.words;
+  } catch {
+    // storage unavailable: just fetch
+  }
+  const { words, source } = await fetchBuzzwords({ count: config.buzzwordCount });
+  // Only remember real results, so a failed fetch is retried on the next click.
+  if (source === "live") await chrome.storage.local.set({ buzzwordCache: { date: today, words } }).catch(() => {});
+  return words;
+}
+
 async function handleSuggest({ owner, repo }, sender) {
   const startedAt = Date.now();
   const signal = AbortSignal.timeout(config.maxSuggestionMs);
-  const [template, cache, keys] = await Promise.all([
+  const [template, cache, keys, buzzwords] = await Promise.all([
     loadText("prompt.md"),
     loadCache(),
     chrome.storage.local.get(["anthropicApiKey", "githubToken"]),
+    getBuzzwords(),
   ]);
 
   const result = await suggestFeature({
@@ -39,6 +57,7 @@ async function handleSuggest({ owner, repo }, sender) {
     apiKey: keys.anthropicApiKey,
     githubToken: keys.githubToken,
     signal,
+    buzzwords,
   });
   if (result.error) console.warn("[feature-creep] used fallback because:", result.error);
 
@@ -53,13 +72,18 @@ async function handleSuggest({ owner, repo }, sender) {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message?.type === "get-ui-config") {
-    sendResponse({
-      buttonLabel: config.buttonLabel,
-      spinnerMessages: config.spinnerMessages,
-      spinnerIntervalMs: config.spinnerIntervalMs,
-      minSpinnerMs: config.minSpinnerMs,
-    });
-    return false;
+    // Today's buzzwords become extra loading steps.
+    getBuzzwords()
+      .catch(() => [])
+      .then((words) =>
+        sendResponse({
+          buttonLabel: config.buttonLabel,
+          spinnerMessages: [...config.spinnerMessages, ...words.slice(0, 2).map((w) => `Pivoting to ${w}...`)],
+          spinnerIntervalMs: config.spinnerIntervalMs,
+          minSpinnerMs: config.minSpinnerMs,
+        })
+      );
+    return true;
   }
   if (message?.type === "suggest-feature") {
     handleSuggest(message, sender)

@@ -5,6 +5,8 @@
 // node:fs. Callers load prompt.md / config.js / demo-cache.json themselves and
 // pass them in. Only global `fetch` is assumed (browsers and Node 18+).
 
+import { formatBuzzwords } from "./buzzwords.js";
+
 const GITHUB_API = "https://api.github.com";
 const GITHUB_RAW = "https://raw.githubusercontent.com";
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
@@ -238,9 +240,9 @@ export function buildIssueUrl({ owner, repo, suggestion, config }) {
  * Retries the model call once if the answer isn't valid JSON.
  * Pass `context` to reuse one already fetched (the CLI does this for --dry-run).
  */
-export async function generateSuggestion({ owner, repo, template, config, apiKey, githubToken, context, signal }) {
+export async function generateSuggestion({ owner, repo, template, config, apiKey, githubToken, context, signal, buzzwords }) {
   context ??= await fetchRepoContext({ owner, repo, githubToken, config, signal });
-  const prompt = buildPrompt(template, context);
+  const prompt = buildPrompt(template, { ...context, buzzwords: formatBuzzwords(buzzwords) });
 
   let lastError;
   for (let attempt = 1; attempt <= 2; attempt++) {
@@ -282,7 +284,7 @@ export function pickFallback(cache) {
  * Returns { suggestion, source: "cache" | "api" | "fallback", issueUrl, error? }.
  * Throws only if the live pipeline fails and no fallback is available/allowed.
  */
-export async function suggestFeature({ owner, repo, template, config, cache, apiKey, githubToken, signal }) {
+export async function suggestFeature({ owner, repo, template, config, cache, apiKey, githubToken, signal, buzzwords }) {
   const done = (suggestion, source, error) => ({
     suggestion,
     source,
@@ -302,7 +304,7 @@ export async function suggestFeature({ owner, repo, template, config, cache, api
   }
 
   try {
-    const suggestion = await generateSuggestion({ owner, repo, template, config, apiKey, githubToken, signal });
+    const suggestion = await generateSuggestion({ owner, repo, template, config, apiKey, githubToken, signal, buzzwords });
     return done(suggestion, "api");
   } catch (err) {
     const fallback = config.fallbackToCacheOnError ? pickFallback(cache) : null;

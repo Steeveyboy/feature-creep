@@ -24,6 +24,12 @@ export default {
   maxReadmeChars: 6000,
   maxFileTreeEntries: 150,
 
+  // ── Daily buzzwords ───────────────────────────────────────────────────────
+  // Each day the extension scans the Hacker News front page for trending
+  // tech words and works them into the prompt and the loading screen.
+  buzzwordsEnabled: true,
+  buzzwordCount: 8,
+
   // ── The GitHub issue ──────────────────────────────────────────────────────
   maxIssueBodyChars: 1500,
   // Labels only stick if they already exist in the repo and you have

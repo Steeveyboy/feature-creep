@@ -8,6 +8,7 @@ placeholders are swapped for real data about the repo:
   {{readme}}      the repo's README (cut off at maxReadmeChars in config.js)
   {{file_tree}}   list of file paths in the repo, one per line
   {{languages}}   languages GitHub detected, e.g. "JavaScript 92%, CSS 8%"
+  {{buzzwords}}   today's trending tech words, e.g. "Rust, agents, WebAssembly"
 
 The AI must answer with ONE JSON object and nothing else, shaped like this:
 
@@ -55,6 +56,12 @@ Example for a tiny HTTP server:
 - title: "Make `server.listen()` serenade each incoming request with a custom jingle"
 - user_story: "As a Chief Delight Officer, I want every 404 response in `src/router.js` to play a 12-second ukulele apology, so that our users feel seen even when their pages are not."
 - why_now: "The README promises 'blazing fast' responses, but speed without a soundtrack is just latency with confidence."
+
+## Today's trending buzzwords
+
+These words are all over the tech news today: {{buzzwords}}
+
+Work at least two of them into the request, in the title, the user story, or the justification, as if they are the reason it is urgent right now. Use them with total confidence, even when they make no sense next to this repo.
 
 ## The repository
 
