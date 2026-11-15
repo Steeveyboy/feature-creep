@@ -4,26 +4,84 @@ A Chrome extension that adds a **✨ Suggest Feature** button to every GitHub re
 
 Built for Stupid Ideas Hackathon Ottawa. No build step: edit a file, reload the extension.
 
-## Install (load unpacked)
+## Teammates: start here
 
-1. Download or clone this repo.
-2. Open `chrome://extensions` in Chrome.
-3. Turn on **Developer mode** (top right).
-4. Click **Load unpacked** and pick this folder (the one containing `manifest.json`).
-5. Open any GitHub repo, for example <https://github.com/react/react>. The button sits next to Star/Fork. If GitHub has moved that row, it floats in the bottom-right corner instead.
+You need Google Chrome. Steps 1 to 4 take about five minutes, and you only do them once.
 
-After changing any file, click the reload arrow on the feature-creep card at `chrome://extensions`, then refresh the GitHub tab.
+### 1. Get the code
 
-## Set your keys
+Either download it: on the GitHub page for this repo, click the green **Code** button, then **Download ZIP**, and unzip it somewhere you'll find again. Or clone it:
 
-Click the feature-creep icon in the Chrome toolbar (or **Details → Extension options**) and paste:
+```bash
+git clone https://github.com/Steeveyboy/feature-creep.git
+```
 
-- **Anthropic API key** (required for live suggestions): from <https://console.anthropic.com/>.
-- **GitHub token** (optional): without one, GitHub allows 60 requests an hour, which is about 30 clicks. Any token works for public repos; it needs no scopes.
+### 2. Load it into Chrome
 
-Keys are stored in `chrome.storage.local` in your browser profile. They are never written to this repo.
+1. Type `chrome://extensions` into the address bar and press Enter.
+2. Turn on **Developer mode** (switch in the top-right corner).
+3. Click **Load unpacked** and choose the `feature-creep` folder. Pick the folder that contains `manifest.json`, not a folder inside it.
+4. A **feature-creep** card appears. Click the puzzle-piece icon in Chrome's toolbar and pin feature-creep so its icon is always visible.
 
-Repos listed in `demo-cache.json` work with no keys at all.
+### 3. Add the API key
+
+1. Click the feature-creep icon in the toolbar. A settings page opens.
+2. Paste the Anthropic API key into the first box (ask the team for it if you don't have one; it starts with `sk-ant-`).
+3. Optional: paste a GitHub token into the second box. Without one, GitHub allows about 30 clicks an hour from your network.
+4. Click **Save**.
+
+The key stays in your own browser. Never paste it into a file in this repo or into chat.
+
+### 4. Check it works
+
+1. Open <https://github.com/EnterpriseQualityCoding/FizzBuzzEnterpriseEdition>.
+2. Find **✨ Suggest Feature** next to the Watch / Fork / Star buttons near the top right. If it isn't there, look in the bottom-right corner of the page.
+3. Click it. The button cycles through messages like "Aligning on synergies..." for a few seconds.
+4. A new tab opens with a GitHub issue already filled in. Read it, laugh, then **close the tab without clicking Submit**.
+
+If a dark note pops up saying "used a canned idea", the live AI call failed and you got a backup idea. The note says why (usually a missing or mistyped key). Fix it in the settings page and try again.
+
+### Whenever someone changes the code
+
+Get the latest files (download again, or `git pull`), then on `chrome://extensions` click the circular reload arrow on the feature-creep card, then refresh the GitHub tab.
+
+## Demo day
+
+### The two demo repos
+
+| Repo | Why it lands |
+| --- | --- |
+| [EnterpriseQualityCoding/FizzBuzzEnterpriseEdition](https://github.com/EnterpriseQualityCoding/FizzBuzzEnterpriseEdition) | FizzBuzz written as a parody of enterprise Java. A product manager asking for even more process is the joke. |
+| [auchenberg/volkswagen](https://github.com/auchenberg/volkswagen) | Makes failing tests pass whenever it detects a CI server. Its README is full of claims to riff on. |
+
+Both have GitHub Issues turned on and no issue templates, so the pre-filled issue shows up as is.
+
+### The 60-second script
+
+1. Have both repos open in tabs before you start, with the extension loaded and the key saved.
+2. On FizzBuzzEnterpriseEdition: say what the repo is in one sentence, then click **✨ Suggest Feature**.
+3. While the spinner messages cycle, let the audience read them.
+4. When the issue tab opens, read the title out loud, then the user story. Scroll to show the story points and acceptance criteria.
+5. Switch to the volkswagen tab and do it again.
+6. **Close the issue tabs. Never click Submit.** These are real people's projects and the issue would really be filed.
+
+### The night before
+
+- [ ] Lock in the best ideas so the demo doesn't depend on the AI or the venue wifi. Run this a few times with your key set (see the next section for setup) until you like what it prints, then reload the extension:
+
+  ```bash
+  node scripts/try.mjs EnterpriseQualityCoding/FizzBuzzEnterpriseEdition auchenberg/volkswagen --save
+  ```
+
+  After that, those two repos open the saved issue instantly, with no AI call and no key needed.
+- [ ] Do a full run-through on the laptop you'll present from, signed in to GitHub, on the venue's wifi if you can.
+- [ ] Zoom the browser to 125% or more so the issue text is readable from the back of the room.
+
+### If something goes wrong on stage
+
+- **Nothing happens when you click**: refresh the page and click again.
+- **The "canned idea" note appears**: the backup idea still opens. Keep going.
+- **The page says you have to sign in**: sign in to GitHub. The pre-filled issue only shows up when you're logged in.
 
 ## Making it funnier
 
@@ -74,7 +132,6 @@ Then reload the extension so Chrome picks up the new files.
 ### Tips
 
 - Cache keys must match the address bar. GitHub redirects renamed repos (`facebook/react` is now `react/react`), so use the name you land on.
-
 - The placeholders in `prompt.md` (`{{repo_name}}`, `{{readme}}`, `{{file_tree}}`, `{{languages}}`) are explained at the top of that file. Keep them, and keep the six JSON field names.
 - The two entries currently in `demo-cache.json` were written by hand as placeholders. Replace them with real `--save` output for your demo repos.
 - Issue labels only apply if they already exist in the target repo and you're allowed to set them.
@@ -118,6 +175,6 @@ Not yet verified (the build sandbox had no API key and no GitHub access):
 
 Next:
 
-- [ ] Replace the hand-written `demo-cache.json` entries with `--save` output for the actual demo repos
+- [ ] Save cache entries for the demo repos (FizzBuzzEnterpriseEdition, volkswagen) with `--save`; replace the hand-written placeholder entries
 - [ ] Tune `prompt.md` against 5 to 10 varied repos
 - [ ] Optional: extension icon; try `README.rst` / lowercase `readme.md` when `README.md` is missing
