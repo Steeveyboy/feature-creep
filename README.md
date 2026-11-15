@@ -35,9 +35,9 @@ The key stays in your own browser. Never paste it into a file in this repo or in
 ### 4. Check it works
 
 1. Open <https://github.com/EnterpriseQualityCoding/FizzBuzzEnterpriseEdition>.
-2. Find **✨ Suggest Feature** next to the Watch / Fork / Star buttons near the top right. If it isn't there, look in the bottom-right corner of the page.
-3. Click it. The button cycles through messages like "Aligning on synergies..." for a few seconds.
-4. A new tab opens with a GitHub issue already filled in. Read it, laugh, then **close the tab without clicking Submit**.
+2. Find Carolyn's illustrated **Suggest Feature** button in the bottom-right corner.
+3. Click it to open three overlapping approval pop-ups. Approve the approval process, agree with yourself, and choose **Open issue draft**. The aardvark sips coffee at its desk while the status jokes cycle for about four to five seconds.
+4. A new tab opens with a GitHub issue already filled in. Read it, laugh, then **close the tab without clicking Create**.
 
 If a dark note pops up saying "used a canned idea", the live AI call failed and you got a backup idea. The note says why (usually a missing or mistyped key). Fix it in the settings page and try again.
 
@@ -60,10 +60,10 @@ Both have GitHub Issues turned on and no issue templates, so the pre-filled issu
 
 1. Have both repos open in tabs before you start, with the extension loaded and the key saved.
 2. On FizzBuzzEnterpriseEdition: say what the repo is in one sentence, then click **✨ Suggest Feature**.
-3. While the spinner messages cycle, let the audience read them.
+3. Work through the three pop-ups. Read "Your only stakeholder is you" aloud, then give the audience a moment to read the spinner.
 4. When the issue tab opens, read the title out loud, then the user story. Scroll to show the story points and acceptance criteria.
 5. Switch to the volkswagen tab and do it again.
-6. **Close the issue tabs. Never click Submit.** These are real people's projects and the issue would really be filed.
+6. **Close the issue tabs without clicking Create.** These are real people's projects.
 
 ### The night before
 
@@ -92,6 +92,14 @@ You don't need to code. Three files at the top of the repo control the comedy:
 | `prompt.md` | The instructions the AI gets | The ideas aren't funny, specific or pointless enough |
 | `config.js` | Settings: spinner messages, button label, issue labels, length limits, which AI model | You want new spinner jokes or longer/shorter issues |
 | `demo-cache.json` | Ready-made issues for specific repos | You want a guaranteed-good result for the repos in the demo |
+
+### Pop-ups and mascot
+
+Carolyn's hand-drawn **Suggest Feature** sign is the button. It starts a stack of three fake approvals with the aardvark in each window. **Esc** or **×** cancels the stack. The last approval starts the loading screen, where the aardvark sips coffee beside its laptop until the prefilled GitHub form opens.
+
+The original drawings are `extension/aardvark_button1.png` and `extension/aardvark_button2.png`. The loading animation uses the two desk poses in `extension/aardvark-desk.png`, adapted from Carolyn's drawing. Reduced-motion mode keeps the scene still.
+
+For a manual check, use the cached suggestion on [this repo](https://github.com/Steeveyboy/feature-creep). Cancel once and verify the button is ready again. Then complete all three approvals and verify that exactly one prefilled issue form opens. Close the form to leave it unpublished.
 
 ### Test a prompt change without touching Chrome
 
@@ -143,12 +151,12 @@ prompt.md, config.js, demo-cache.json   <- the parts you tune
 src/core.js                             <- all the logic, shared by both of:
   extension/background.js               <- service worker: network calls, opens the issue tab
   scripts/try.mjs                       <- command-line version for tuning
-extension/content.js, content.css       <- the button and spinner on github.com
+extension/content.js, content.css       <- the button, pop-ups, mascot prompt and spinner on github.com
 extension/options.html, options.js      <- the keys page
 manifest.json                           <- Chrome extension manifest (MV3)
 ```
 
-On click: cache hit → use it. Otherwise fetch README (main, then master), file tree and languages → fill `prompt.md` → Anthropic Messages API → validate the JSON (one retry) → open `issues/new?title=…&body=…&labels=…`. On any failure, a random cache entry is used and a small note says why.
+After the final approval, use a cached suggestion if one is available. Otherwise fetch the README (main, then master), file tree and languages, fill `prompt.md`, call the Anthropic Messages API, and validate the JSON (one retry). Live requests share a five-second deadline. On failure or timeout, the extension uses the existing saved fallback when available, then opens the prefilled GitHub issue form.
 
 ## Troubleshooting
 

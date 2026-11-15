@@ -39,19 +39,20 @@ function githubHeaders(token) {
   return headers;
 }
 
-async function fetchReadme(owner, repo, token) {
+async function fetchReadme(owner, repo, token, signal) {
   // main, then master; HEAD is a last resort for repos with another default branch.
   for (const branch of ["main", "master", "HEAD"]) {
     const res = await fetch(`${GITHUB_RAW}/${owner}/${repo}/${branch}/README.md`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
+      signal,
     });
     if (res.ok) return await res.text();
   }
   return "";
 }
 
-async function githubJson(path, token) {
-  const res = await fetch(`${GITHUB_API}${path}`, { headers: githubHeaders(token) });
+async function githubJson(path, token, signal) {
+  const res = await fetch(`${GITHUB_API}${path}`, { headers: githubHeaders(token), signal });
   if (!res.ok) {
     const rateLimited = res.status === 403 || res.status === 429;
     const hint = rateLimited ? " (rate limited? add a GitHub token)" : "";
@@ -65,11 +66,11 @@ async function githubJson(path, token) {
  * Returns { repo_name, readme, file_tree, languages } as ready-to-insert strings.
  * A missing README is tolerated; a failing GitHub API call throws.
  */
-export async function fetchRepoContext({ owner, repo, githubToken, config }) {
+export async function fetchRepoContext({ owner, repo, githubToken, config, signal }) {
   const [readme, tree, languages] = await Promise.all([
-    fetchReadme(owner, repo, githubToken),
-    githubJson(`/repos/${owner}/${repo}/git/trees/HEAD?recursive=1`, githubToken),
-    githubJson(`/repos/${owner}/${repo}/languages`, githubToken),
+    fetchReadme(owner, repo, githubToken, signal),
+    githubJson(`/repos/${owner}/${repo}/git/trees/HEAD?recursive=1`, githubToken, signal),
+    githubJson(`/repos/${owner}/${repo}/languages`, githubToken, signal),
   ]);
 
   // Files only, shallowest first: top-level files say the most about a repo.
@@ -111,7 +112,7 @@ export function buildPrompt(template, context) {
 // ── 3. Call the Anthropic Messages API ───────────────────────────────────────
 
 /** Sends one user message, returns the model's text. Throws on any API error. */
-export async function callAnthropic({ prompt, apiKey, config }) {
+export async function callAnthropic({ prompt, apiKey, config, signal }) {
   if (!apiKey) throw new Error("No Anthropic API key set");
 
   const body = {
@@ -133,9 +134,11 @@ export async function callAnthropic({ prompt, apiKey, config }) {
       "anthropic-dangerous-direct-browser-access": "true",
     },
     body: JSON.stringify(body),
+    signal,
   });
 
   const data = await res.json().catch(() => null);
+  signal?.throwIfAborted();
   if (!res.ok) {
     const detail = data?.error?.message || res.statusText;
     throw new Error(`Anthropic API ${res.status}: ${detail}`);
@@ -235,13 +238,13 @@ export function buildIssueUrl({ owner, repo, suggestion, config }) {
  * Retries the model call once if the answer isn't valid JSON.
  * Pass `context` to reuse one already fetched (the CLI does this for --dry-run).
  */
-export async function generateSuggestion({ owner, repo, template, config, apiKey, githubToken, context }) {
-  context ??= await fetchRepoContext({ owner, repo, githubToken, config });
+export async function generateSuggestion({ owner, repo, template, config, apiKey, githubToken, context, signal }) {
+  context ??= await fetchRepoContext({ owner, repo, githubToken, config, signal });
   const prompt = buildPrompt(template, context);
 
   let lastError;
   for (let attempt = 1; attempt <= 2; attempt++) {
-    const { text, truncated } = await callAnthropic({ prompt, apiKey, config });
+    const { text, truncated } = await callAnthropic({ prompt, apiKey, config, signal });
     try {
       return parseSuggestion(text);
     } catch (err) {
@@ -279,7 +282,7 @@ export function pickFallback(cache) {
  * Returns { suggestion, source: "cache" | "api" | "fallback", issueUrl, error? }.
  * Throws only if the live pipeline fails and no fallback is available/allowed.
  */
-export async function suggestFeature({ owner, repo, template, config, cache, apiKey, githubToken }) {
+export async function suggestFeature({ owner, repo, template, config, cache, apiKey, githubToken, signal }) {
   const done = (suggestion, source, error) => ({
     suggestion,
     source,
@@ -299,7 +302,7 @@ export async function suggestFeature({ owner, repo, template, config, cache, api
   }
 
   try {
-    const suggestion = await generateSuggestion({ owner, repo, template, config, apiKey, githubToken });
+    const suggestion = await generateSuggestion({ owner, repo, template, config, apiKey, githubToken, signal });
     return done(suggestion, "api");
   } catch (err) {
     const fallback = config.fallbackToCacheOnError ? pickFallback(cache) : null;

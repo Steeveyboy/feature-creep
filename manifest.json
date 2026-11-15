@@ -21,6 +21,16 @@
       "run_at": "document_idle"
     }
   ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "extension/aardvark_button1.png",
+        "extension/aardvark_button2.png",
+        "extension/aardvark-desk.png"
+      ],
+      "matches": ["https://github.com/*"]
+    }
+  ],
   "options_ui": {
     "page": "extension/options.html",
     "open_in_tab": true

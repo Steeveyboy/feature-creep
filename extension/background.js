@@ -23,6 +23,7 @@ async function loadCache() {
 
 async function handleSuggest({ owner, repo }, sender) {
   const startedAt = Date.now();
+  const signal = AbortSignal.timeout(config.maxSuggestionMs);
   const [template, cache, keys] = await Promise.all([
     loadText("prompt.md"),
     loadCache(),
@@ -37,6 +38,7 @@ async function handleSuggest({ owner, repo }, sender) {
     cache,
     apiKey: keys.anthropicApiKey,
     githubToken: keys.githubToken,
+    signal,
   });
   if (result.error) console.warn("[feature-creep] used fallback because:", result.error);
 
