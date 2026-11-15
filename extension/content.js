@@ -12,16 +12,22 @@
       title: "Simplicity detected",
       message: "This request takes one click. Approve an approval process to bring it up to spec.",
       action: "Approve the approval process",
+      scene: "sprint",
+      illustration: "The aardvark sprints with an armful of paperwork.",
     },
     {
       title: "Stakeholder alignment required",
       message: "Your only stakeholder is you. Please confirm that you agree with yourself.",
       action: "Click here if you agree with yourself",
+      scene: "conference",
+      illustration: "The aardvark presents a chart to another aardvark that looks just like him.",
     },
     {
       title: "Draft release approval",
       message: "Your feature suggestion has been approved for drafting. Approve the decision to open the draft.",
       action: "Open issue draft",
+      scene: "stamp",
+      illustration: "The aardvark slams an oversized rubber stamp onto the paperwork.",
     },
   ];
 
@@ -109,10 +115,13 @@
       const dialog = document.createElement("dialog");
       dialog.className = "feature-creep-popup-stack";
       dialog.setAttribute("aria-label", "Feature Creep approvals");
+      const frameUrl = chrome.runtime.getURL("extension/popup-art/frame.png");
+      dialog.style.setProperty("--feature-creep-popup-frame", `url("${frameUrl}")`);
 
       for (const [index, approval] of APPROVALS.entries()) {
         const pane = document.createElement("section");
         pane.className = "feature-creep-popup-window";
+        pane.dataset.scene = approval.scene;
         pane.style.setProperty("--feature-creep-offset", APPROVALS.length - 1 - index);
         pane.inert = index !== 0;
 
@@ -149,7 +158,12 @@
 
         const body = document.createElement("div");
         body.className = "feature-creep-popup-body";
-        body.append(message, makeArtwork("feature-creep-character"));
+        const artwork = document.createElement("img");
+        artwork.className = "feature-creep-popup-art";
+        artwork.alt = approval.illustration;
+        artwork.draggable = false;
+        artwork.src = chrome.runtime.getURL(`extension/popup-art/${approval.scene}.png`);
+        body.append(message, artwork);
         pane.append(titleBar, body, advance);
         // The first approval sits on top, with later ones peeking out behind it.
         dialog.prepend(pane);

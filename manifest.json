@@ -28,7 +28,8 @@
         "extension/aardvark_button2.png",
         "extension/aardvark-desk.png",
         "extension/aardvark-launcher.png",
-        "extension/mascot-arrow.png"
+        "extension/mascot-arrow.png",
+        "extension/popup-art/*.png"
       ],
       "matches": ["https://github.com/*"]
     }

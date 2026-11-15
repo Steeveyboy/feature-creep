@@ -99,6 +99,8 @@ Carolyn's hand-drawn **Suggest Feature** sign is the button. It starts a stack o
 
 The original drawings are `extension/aardvark_button1.png` and `extension/aardvark_button2.png`. The loading animation uses the two desk poses in `extension/aardvark-desk.png`, adapted from Carolyn's drawing. Reduced-motion mode keeps the scene still.
 
+The approval mockups load `sprint.png`, `conference.png`, and `stamp.png` from `extension/popup-art/`. Replace those transparent PNGs with the team's final illustrations to keep the existing copy and controls. Replace `frame.png` in the same folder with a transparent rectangular border to update the outside frame.
+
 For a manual check, use the cached suggestion on [this repo](https://github.com/Steeveyboy/feature-creep). Cancel once and verify the button is ready again. Then complete all three approvals and verify that exactly one prefilled issue form opens. Close the form to leave it unpublished.
 
 ### Test a prompt change without touching Chrome
