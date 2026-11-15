@@ -101,15 +101,6 @@
   --arrow-delay: -500ms;
 }
 
-.feature-creep-arrow:nth-child(5) {
-  right: 0;
-  top: -2.15rem;
-  --arrow-width: 2.85rem;
-  --arrow-aim: 112deg;
-  --arrow-beat: 570ms;
-  --arrow-delay: -120ms;
-}
-
 .feature-creep-floating:has(#feature-creep-button:is(:hover, :focus-visible)) .feature-creep-arrow {
   animation-iteration-count: infinite;
 }
@@ -125,7 +116,6 @@
   }
 
   .feature-creep-arrow:nth-child(1) { left: -2.3rem; }
-  .feature-creep-arrow:nth-child(4) { display: none; }
 }
 
 /* Frame the visible ink within Carolyn's original 700 x 500 PNGs. */
@@ -225,69 +215,116 @@
 }
 
 .feature-creep-popup-stack {
-  --feature-creep-step-x: clamp(8px, 3vw, 14px);
-  --feature-creep-step-y: 42px;
+  position: fixed;
+  inset: 0;
   box-sizing: border-box;
-  width: min(36rem, calc(100vw - 2rem));
-  max-height: calc(100vh - 2rem);
-  margin: auto;
-  padding: 4px calc(2 * var(--feature-creep-step-x) + 9px)
-    calc(2 * var(--feature-creep-step-y) + 10px) 4px;
-  overflow: auto;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
   border: 0;
   background: transparent;
 }
 
-.feature-creep-popup-stack[open] {
-  display: grid;
-}
-
 .feature-creep-popup-stack::backdrop {
-  background: rgb(0 0 0 / 33%);
+  background: rgb(0 0 0 / 38%);
 }
 
 .feature-creep-popup-window {
   --feature-creep-handwriting: "Chalkboard SE", "Comic Sans MS", ui-rounded, system-ui, sans-serif;
-  grid-area: 1 / 1;
-  align-self: start;
-  min-width: 0;
-  padding: 4px clamp(8px, 2vw, 16px) 13px;
-  transform: translate(
-    calc(var(--feature-creep-offset) * var(--feature-creep-step-x)),
-    calc(var(--feature-creep-offset) * var(--feature-creep-step-y))
-  );
-  border: 8px solid #1b1b1b;
-  border-image: var(--feature-creep-popup-frame) 54 stretch;
-  background: #fff;
-  color: #1d1d1d;
-  font: 15px/1.45 system-ui, sans-serif;
-  box-shadow: 4px 5px #181818;
-  animation: feature-creep-popup-appear 110ms steps(2, end) backwards;
-  animation-delay: calc(var(--feature-creep-offset) * 75ms);
+  position: absolute;
+  left: var(--popup-x);
+  top: var(--popup-y);
+  z-index: var(--feature-creep-offset);
+  width: var(--popup-width, min(49vw, 42rem, 102dvh));
+  aspect-ratio: 646 / 435;
+  transform: translate(-50%, -50%) rotate(var(--popup-tilt));
+  /* Crop the transparent margins of Carolyn's original 700 × 500 window. */
+  background: var(--feature-creep-popup-frame) 42.6% 67.7% /
+    calc(700 / 646 * 100%) calc(500 / 435 * 100%) no-repeat;
+  color: #171717;
+  font: clamp(0.76rem, 1.35vw, 1rem)/1.36 system-ui, sans-serif;
+  filter: drop-shadow(5px 7px 0 rgb(0 0 0 / 55%));
+  animation: feature-creep-popup-appear 110ms step-end backwards;
+  animation-delay: calc(var(--feature-creep-offset) * 70ms);
+}
+
+.feature-creep-popup-window[data-layout="portrait"] {
+  width: min(34vw, 23rem, 54dvh);
+  aspect-ratio: 358 / 494;
+  background-position: 40.94% 50%;
+  background-size: calc(700 / 358 * 100%) calc(500 / 494 * 100%);
+}
+
+.feature-creep-popup-window[data-scene="sprint"] {
+  --popup-x: 37%;
+  --popup-y: 60%;
+  --popup-tilt: -4deg;
+  --scene-left: 51;
+  --scene-top: 103;
+  --scene-width: 605;
+  --scene-height: 535;
+  --scene-loop: 440ms;
+}
+
+.feature-creep-popup-window[data-scene="conference"] {
+  --popup-x: 75%;
+  --popup-y: 43%;
+  --popup-tilt: 7deg;
+  --scene-left: 704;
+  --scene-top: 118;
+  --scene-width: 740;
+  --scene-height: 515;
+  --scene-loop: 1.08s;
+}
+
+.feature-creep-popup-window[data-scene="stamp"] {
+  --popup-x: 39%;
+  --popup-y: 29%;
+  --popup-tilt: 4deg;
+  --popup-width: min(47vw, 40rem, 76dvh);
+  --scene-left: 1498;
+  --scene-top: 103;
+  --scene-width: 638;
+  --scene-height: 536;
+  --scene-loop: 720ms;
 }
 
 .feature-creep-popup-title {
+  position: absolute;
+  inset: 3% 3% auto 5%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  min-height: 31px;
-  padding: 0 0 5px;
-  border-bottom: 2px solid #252525;
-  border-radius: 0 0 4% 2%;
-  font: 700 17px/1.15 var(--feature-creep-handwriting);
+  box-sizing: border-box;
+  height: 10%;
+  padding-right: 21%;
+  font: 700 clamp(0.78rem, 1.6vw, 1.15rem)/1.04 var(--feature-creep-handwriting);
 }
 
-.feature-creep-popup-window[inert] {
-  background: #f1f1f1;
+.feature-creep-popup-window[data-layout="portrait"] .feature-creep-popup-title {
+  inset: 3% 8% auto 10%;
+  height: 11%;
+  padding-right: 33%;
+  font-size: clamp(0.72rem, 1.28vw, 1rem);
 }
 
 .feature-creep-popup-body {
+  position: absolute;
+  inset: 17% 7% 20%;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.22fr);
   align-items: center;
-  gap: 8px 14px;
-  padding: 9px 0 8px;
+  gap: 6px 13px;
+  overflow: auto;
+}
+
+.feature-creep-popup-window[data-layout="portrait"] .feature-creep-popup-body {
+  inset-inline: 11%;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: center;
 }
 
 .feature-creep-popup-body p {
@@ -295,31 +332,46 @@
 }
 
 .feature-creep-popup-art {
+  position: relative;
   display: block;
   width: 100%;
-  max-height: 10.25rem;
-  aspect-ratio: 3 / 2;
-  object-fit: contain;
+  aspect-ratio: var(--scene-width) / var(--scene-height);
+  overflow: hidden;
 }
 
-.feature-creep-popup-window[data-scene="sprint"] {
-  --feature-creep-scene-entry: translateX(18px) rotate(4deg);
+.feature-creep-popup-window[data-layout="portrait"] .feature-creep-popup-art {
+  grid-row: 1;
 }
 
-.feature-creep-popup-window[data-scene="conference"] {
-  --feature-creep-scene-entry: rotate(-6deg);
+.feature-creep-popup-art img {
+  position: absolute;
+  top: calc(-1 * var(--scene-top) / var(--scene-height) * 100%);
+  left: calc(-1 * var(--scene-left) / var(--scene-width) * 100%);
+  width: calc(2172 / var(--scene-width) * 100%);
+  max-width: none;
+  height: auto;
 }
 
-.feature-creep-popup-window[data-scene="stamp"] {
-  --feature-creep-scene-entry: translateY(-9px);
+.feature-creep-popup-art img:last-child {
+  opacity: 0;
 }
 
-.feature-creep-popup-window:not([inert]) .feature-creep-popup-art {
-  animation: feature-creep-scene-arrive 340ms steps(3, end);
+.feature-creep-popup-window:not([inert]) .feature-creep-popup-art img:first-child {
+  animation: feature-creep-scene-rest var(--scene-loop) step-end infinite;
 }
 
-@keyframes feature-creep-scene-arrive {
-  from { transform: var(--feature-creep-scene-entry); }
+.feature-creep-popup-window:not([inert]) .feature-creep-popup-art img:last-child {
+  animation: feature-creep-scene-move var(--scene-loop) step-end infinite;
+}
+
+@keyframes feature-creep-scene-rest {
+  0%, 100% { opacity: 1; }
+  52% { opacity: 0; }
+}
+
+@keyframes feature-creep-scene-move {
+  0%, 100% { opacity: 0; }
+  52% { opacity: 1; }
 }
 
 .feature-creep-popup-window button {
@@ -347,26 +399,85 @@
 }
 
 .feature-creep-popup-title .feature-creep-popup-close {
-  min-width: 26px;
-  min-height: 26px;
+  position: absolute;
+  inset: 0 0 auto auto;
+  width: 11%;
+  height: 100%;
   padding: 0;
-  font-size: 15px;
+  border: 0;
+  background: transparent;
+  color: transparent;
+  box-shadow: none;
 }
 
-.feature-creep-popup-advance {
-  display: block;
-  margin: 3px 0 0 auto;
-  padding: 6px 10px;
+.feature-creep-popup-window[data-layout="portrait"] .feature-creep-popup-close {
+  width: 20%;
 }
 
-@media (max-width: 440px) {
-  .feature-creep-popup-body {
-    grid-template-columns: minmax(0, 1fr);
+.feature-creep-popup-actions {
+  position: absolute;
+  inset: auto 7% 6%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: clamp(4px, 1.1vw, 10px);
+}
+
+.feature-creep-popup-window[data-layout="portrait"] .feature-creep-popup-actions {
+  inset-inline: 11%;
+}
+
+.feature-creep-popup-window .feature-creep-popup-advance {
+  max-width: 70%;
+  padding: 5px 9px;
+  font-size: clamp(0.72rem, 1.3vw, 0.95rem);
+}
+
+.feature-creep-popup-cue {
+  display: flex;
+  align-items: center;
+  flex: 0 1 auto;
+  gap: 4px;
+  pointer-events: none;
+  font: 700 clamp(0.68rem, 1.35vw, 1rem)/1 var(--feature-creep-handwriting);
+  transform: rotate(-8deg);
+}
+
+.feature-creep-popup-cue::after {
+  content: "";
+  flex: none;
+  width: clamp(1.1rem, 3vw, 2.25rem);
+  aspect-ratio: 1156 / 600;
+  background: var(--feature-creep-arrow-image) center 52% / calc(1774 / 1156 * 100%) auto no-repeat;
+  animation: feature-creep-popup-point 460ms steps(2, end) infinite alternate;
+}
+
+.feature-creep-popup-window[inert] .feature-creep-popup-cue {
+  visibility: hidden;
+}
+
+.feature-creep-popup-window[inert] .feature-creep-popup-cue::after {
+  animation: none;
+}
+
+@keyframes feature-creep-popup-point {
+  from { transform: translateX(-3px); }
+  to { transform: translateX(4px); }
+}
+
+@media (max-width: 760px), (max-height: 550px) {
+  .feature-creep-popup-window {
+    left: 50%;
+    top: 50%;
+    width: min(calc(100% - 2.5rem), 33rem, 110dvh);
+    transform: translate(-50%, -50%)
+      translate(calc((var(--feature-creep-offset) - 1) * 5px),
+        calc((var(--feature-creep-offset) - 1) * 23px))
+      rotate(var(--popup-tilt));
   }
 
-  .feature-creep-popup-art {
-    grid-row: 1;
-    max-height: 7rem;
+  .feature-creep-popup-window[data-layout="portrait"] {
+    width: min(calc(100% - 3.25rem), 22rem, 55dvh);
   }
 }
 
@@ -388,7 +499,7 @@
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
 }
 
-/* Loading overlay: dimmed backdrop with a card in the middle of the viewport. */
+/* The loading window uses Carolyn's landscape frame. */
 #feature-creep-overlay {
   position: fixed;
   inset: 0;
@@ -401,27 +512,43 @@
 }
 
 .feature-creep-card {
+  position: relative;
   box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 18px;
-  width: min(420px, calc(100% - 32px));
-  max-height: calc(100% - 32px);
-  overflow: auto;
-  padding: 32px 36px;
-  border-radius: 16px;
-  background: #fff;
-  color: #1f2328;
+  width: min(35rem, calc(100% - 32px), 132dvh);
+  aspect-ratio: 646 / 435;
+  background: var(--feature-creep-loading-frame) 42.6% 67.7% /
+    calc(700 / 646 * 100%) calc(500 / 435 * 100%) no-repeat;
+  color: #171717;
   text-align: center;
-  font: 600 16px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  font: 700 clamp(0.82rem, 1.75vw, 1.08rem)/1.25
+    "Chalkboard SE", "Comic Sans MS", ui-rounded, system-ui, sans-serif;
+  filter: drop-shadow(5px 7px 0 rgb(0 0 0 / 55%));
+}
+
+/* This frame is a status display, so cover its illustrated window controls. */
+.feature-creep-card::before {
+  content: "";
+  position: absolute;
+  inset: 3.7% 3.7% auto auto;
+  width: 15%;
+  height: 8.1%;
+  background: #9c9c9c;
+}
+
+.feature-creep-loading-title {
+  position: absolute;
+  inset: 3.4% 20% auto 5%;
+  height: 9%;
+  display: flex;
+  align-items: center;
 }
 
 .feature-creep-desk {
-  position: relative;
-  flex: none;
-  width: min(13rem, 100%);
+  position: absolute;
+  top: 19%;
+  left: 50%;
+  width: min(42%, 15rem);
+  transform: translateX(-50%);
   aspect-ratio: 767 / 641;
   overflow: hidden;
   pointer-events: none;
@@ -439,8 +566,9 @@
 }
 
 .feature-creep-message {
-  min-height: 3em;
-  width: 100%;
+  position: absolute;
+  inset: 73% 9% 9%;
+  display: grid;
   align-content: center;
   text-wrap: balance;
 }
@@ -450,13 +578,11 @@
   65% { transform: none; }
 }
 
-@media (prefers-color-scheme: dark) {
-  .feature-creep-card { background: #161b22; color: #e6edf3; }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .feature-creep-popup-window,
-  .feature-creep-popup-window:not([inert]) .feature-creep-popup-art,
+  .feature-creep-popup-window:not([inert]) .feature-creep-popup-art img:first-child,
+  .feature-creep-popup-window:not([inert]) .feature-creep-popup-art img:last-child,
+  .feature-creep-popup-cue::after,
   .feature-creep-sign.frame-1-ready,
   .feature-creep-launcher-mascot img,
   .feature-creep-arrow,
