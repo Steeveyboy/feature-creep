@@ -196,7 +196,7 @@
         actions.append(cue, advance);
         body.append(message, artwork);
         pane.append(titleBar, body, actions);
-        // Keep the current approval above the other scattered windows.
+        // Keep the current approval on top of the stack.
         dialog.prepend(pane);
       }
 
