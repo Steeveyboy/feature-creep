@@ -18,6 +18,7 @@ import {
   formatIssueBody,
   buildIssueUrl,
 } from "../src/core.js";
+import { fetchBuzzwords, formatBuzzwords } from "../src/buzzwords.js";
 
 const root = new URL("../", import.meta.url);
 const cacheFile = new URL("demo-cache.json", root);
@@ -45,6 +46,11 @@ if (!dryRun && !apiKey) {
 const template = await readFile(new URL("prompt.md", root), "utf8");
 let failures = 0;
 
+const { words: buzzwords, source: buzzSource } = config.buzzwordsEnabled
+  ? await fetchBuzzwords({ count: config.buzzwordCount })
+  : { words: [], source: "off" };
+console.log(`Buzzwords (${buzzSource}): ${formatBuzzwords(buzzwords)}`);
+
 for (const slug of slugs) {
   console.log(`\n━━━ ${slug} ━━━`);
   try {
@@ -52,11 +58,11 @@ for (const slug of slugs) {
     const context = await fetchRepoContext({ owner, repo, githubToken, config });
 
     if (dryRun) {
-      console.log(buildPrompt(template, context));
+      console.log(buildPrompt(template, { ...context, buzzwords: formatBuzzwords(buzzwords) }));
       continue;
     }
 
-    const suggestion = await generateSuggestion({ owner, repo, template, config, apiKey, context });
+    const suggestion = await generateSuggestion({ owner, repo, template, config, apiKey, context, buzzwords });
     console.log(`\n# ${suggestion.title}\n`);
     console.log(formatIssueBody(suggestion, config));
     console.log(`\n${buildIssueUrl({ owner, repo, suggestion, config })}`);
