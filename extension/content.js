@@ -5,6 +5,7 @@
 
 (() => {
   const BUTTON_ID = "feature-creep-button";
+  const ACTIONS_SELECTOR = 'ul[data-testid="repo-header-actions"], ul.pagehead-actions';
 
   // Used until (or in case) the service worker doesn't answer.
   let ui = {
@@ -41,6 +42,10 @@
   async function onClick(button) {
     const repo = currentRepo();
     if (busy || !repo) return;
+    if (issuesDisabled(repo)) {
+      toast("feature-creep: this repo has issues turned off, so there is nowhere to file the idea. Try another repo.");
+      return;
+    }
     busy = true;
     button.disabled = true;
 
@@ -68,6 +73,34 @@
     else if (reply.source === "fallback") toast(`feature-creep used a canned idea: ${reply.error}`);
   }
 
+  /** Make our button look like its neighbours by borrowing their styling hooks. */
+  function copyGithubButtonStyle(actions, button) {
+    const neighbour = actions.querySelector("a[data-component=Button], button[data-component=Button]");
+    if (!neighbour) {
+      button.className = "btn btn-sm"; // older GitHub layout
+      return;
+    }
+    button.className = neighbour.className;
+    for (const attr of ["data-component", "data-size", "data-variant"]) {
+      if (neighbour.hasAttribute(attr)) button.setAttribute(attr, neighbour.getAttribute(attr));
+    }
+  }
+
+  /**
+   * True when the repo's tab bar is on the page but has no Issues tab, which
+   * means issues are turned off and the "new issue" link would be a 404.
+   */
+  function issuesDisabled({ owner, repo }) {
+    const base = `/${owner}/${repo}`.toLowerCase();
+    const hasTab = (name) =>
+      [...document.querySelectorAll("a[href]")].some(
+        (a) => a.getAttribute("href").toLowerCase() === `${base}/${name}`
+      );
+    // Only trust a missing Issues tab if we can see the tab bar at all.
+    const tabBarVisible = ["pulls", "actions", "security", "pulse"].some(hasTab);
+    return tabBarVisible && !hasTab("issues");
+  }
+
   function makeButton() {
     const button = document.createElement("button");
     button.id = BUTTON_ID;
@@ -86,8 +119,9 @@
       return;
     }
 
-    // The list holding Watch / Fork / Star. If GitHub renames it, we float.
-    const actions = document.querySelector("ul.pagehead-actions");
+    // The list holding Watch / Fork / Star (current GitHub, then the older
+    // layout). If GitHub renames it again, we float.
+    const actions = document.querySelector(ACTIONS_SELECTOR);
     const wanted = actions ? "inline" : "floating";
     if (existing?.isConnected && existing.dataset.placement === wanted) return;
     existing?.closest(".feature-creep-wrap")?.remove();
@@ -97,7 +131,7 @@
     if (actions) {
       const li = document.createElement("li");
       li.className = "feature-creep-wrap";
-      button.className = "btn btn-sm"; // GitHub's own button style
+      copyGithubButtonStyle(actions, button);
       li.append(button);
       actions.append(li);
     } else {
