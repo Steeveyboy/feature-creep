@@ -39,11 +39,13 @@ export default {
     "Estimating story points...",
     "Socializing the roadmap...",
     "Moving the needle...",
+    "Leveraging learnings from a meeting that could have been an email...",
+    "Pre-approving the retrospective for this loading screen...",
   ],
-  spinnerIntervalMs: 1100,
+  spinnerIntervalMs: 1800,
   // Keep the spinner up at least this long, so the jokes are visible even
   // when the answer comes instantly from demo-cache.json. 0 = no waiting.
-  minSpinnerMs: 2500,
+  minSpinnerMs: 15000,
 
   // ── Demo safety net ───────────────────────────────────────────────────────
   // true: if the repo is in demo-cache.json, use that instantly (no AI call).

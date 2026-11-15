@@ -1,11 +1,11 @@
-// Content script: puts the button on GitHub repo root pages and shows the
-// spinner. No network calls here; it just messages the service worker.
+// Content script: puts a floating button in the bottom corner of GitHub repo
+// root pages and shows a centered loading overlay while the idea is generated. No network calls here; it just messages the service worker.
 // (Content scripts can't be ES modules, so UI settings from config.js are
 // fetched from the service worker instead of imported.)
 
 (() => {
   const BUTTON_ID = "feature-creep-button";
-  const ACTIONS_SELECTOR = 'ul[data-testid="repo-header-actions"], ul.pagehead-actions';
+  const OVERLAY_ID = "feature-creep-overlay";
 
   // Used until (or in case) the service worker doesn't answer.
   let ui = {
@@ -39,6 +39,30 @@
     setTimeout(() => el.remove(), 6000);
   }
 
+  /** Centered, dimmed loading overlay. Returns { message(text), close() }. */
+  function showOverlay() {
+    document.getElementById(OVERLAY_ID)?.remove();
+    const overlay = document.createElement("div");
+    overlay.id = OVERLAY_ID;
+    overlay.setAttribute("role", "status");
+    overlay.setAttribute("aria-live", "polite");
+
+    const card = document.createElement("div");
+    card.className = "feature-creep-card";
+    const spinner = document.createElement("div");
+    spinner.className = "feature-creep-spinner";
+    const text = document.createElement("div");
+    text.className = "feature-creep-message";
+    card.append(spinner, text);
+    overlay.append(card);
+    document.body.append(overlay);
+
+    return {
+      message: (t) => { text.textContent = t; },
+      close: () => overlay.remove(),
+    };
+  }
+
   async function onClick(button) {
     const repo = currentRepo();
     if (busy || !repo) return;
@@ -49,10 +73,9 @@
     busy = true;
     button.disabled = true;
 
+    const overlay = showOverlay();
     let i = Math.floor(Math.random() * ui.spinnerMessages.length);
-    const spin = () => {
-      button.textContent = `⏳ ${ui.spinnerMessages[i++ % ui.spinnerMessages.length]}`;
-    };
+    const spin = () => overlay.message(ui.spinnerMessages[i++ % ui.spinnerMessages.length]);
     spin();
     const timer = setInterval(spin, ui.spinnerIntervalMs);
 
@@ -65,25 +88,12 @@
     }
 
     clearInterval(timer);
-    button.textContent = ui.buttonLabel;
+    overlay.close();
     button.disabled = false;
     busy = false;
 
     if (!reply?.ok) toast(`feature-creep: ${reply?.error || "something went wrong"}`);
     else if (reply.source === "fallback") toast(`feature-creep used a canned idea: ${reply.error}`);
-  }
-
-  /** Make our button look like its neighbours by borrowing their styling hooks. */
-  function copyGithubButtonStyle(actions, button) {
-    const neighbour = actions.querySelector("a[data-component=Button], button[data-component=Button]");
-    if (!neighbour) {
-      button.className = "btn btn-sm"; // older GitHub layout
-      return;
-    }
-    button.className = neighbour.className;
-    for (const attr of ["data-component", "data-size", "data-variant"]) {
-      if (neighbour.hasAttribute(attr)) button.setAttribute(attr, neighbour.getAttribute(attr));
-    }
   }
 
   /**
@@ -118,28 +128,12 @@
       existing?.closest(".feature-creep-wrap")?.remove();
       return;
     }
+    if (existing?.isConnected) return;
 
-    // The list holding Watch / Fork / Star (current GitHub, then the older
-    // layout). If GitHub renames it again, we float.
-    const actions = document.querySelector(ACTIONS_SELECTOR);
-    const wanted = actions ? "inline" : "floating";
-    if (existing?.isConnected && existing.dataset.placement === wanted) return;
-    existing?.closest(".feature-creep-wrap")?.remove();
-
-    const button = makeButton();
-    button.dataset.placement = wanted;
-    if (actions) {
-      const li = document.createElement("li");
-      li.className = "feature-creep-wrap";
-      copyGithubButtonStyle(actions, button);
-      li.append(button);
-      actions.append(li);
-    } else {
-      const wrap = document.createElement("div");
-      wrap.className = "feature-creep-wrap feature-creep-floating";
-      wrap.append(button);
-      document.body.append(wrap);
-    }
+    const wrap = document.createElement("div");
+    wrap.className = "feature-creep-wrap feature-creep-floating";
+    wrap.append(makeButton());
+    document.body.append(wrap);
   }
 
   chrome.runtime

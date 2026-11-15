@@ -1,4 +1,4 @@
-/* Fallback placement when GitHub's Star/Fork row can't be found. */
+/* The button always lives in the bottom-right corner. */
 .feature-creep-floating {
   position: fixed;
   right: 20px;
@@ -34,4 +34,50 @@
   color: #fff;
   font: 13px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+/* Loading overlay: dimmed backdrop with a card in the middle of the viewport. */
+#feature-creep-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(1, 4, 9, 0.6);
+  backdrop-filter: blur(2px);
+}
+
+.feature-creep-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  min-width: 280px;
+  max-width: 420px;
+  padding: 32px 36px;
+  border-radius: 16px;
+  background: #fff;
+  color: #1f2328;
+  text-align: center;
+  font: 600 16px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+.feature-creep-spinner {
+  width: 44px;
+  height: 44px;
+  border: 5px solid #e4d9fb;
+  border-top-color: #8250df;
+  border-radius: 50%;
+  animation: feature-creep-spin 0.9s linear infinite;
+}
+
+@keyframes feature-creep-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-color-scheme: dark) {
+  .feature-creep-card { background: #161b22; color: #e6edf3; }
+  .feature-creep-spinner { border-color: #3b2a66; border-top-color: #a371f7; }
 }
